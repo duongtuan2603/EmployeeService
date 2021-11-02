@@ -18,22 +18,17 @@ namespace EmployeeService.Controllers
         private EmployeeDBContext db = new EmployeeDBContext();
 
         // GET: api/Employees
-        public IQueryable<Employee> GetEmployees()
+        public HttpResponseMessage GetEmployees()
         {
-            return db.Employees;
+            return Request.CreateResponse(db.Employees.ToList());
         }
 
         // GET: api/Employees/5
         [ResponseType(typeof(Employee))]
-        public async Task<IHttpActionResult> GetEmployee(int id)
+        public HttpResponseMessage GetEmployeeByID(int id)
         {
-            Employee employee = await db.Employees.FindAsync(id);
-            if (employee == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(employee);
+            Employee employee = db.Employees.Find(id);
+            return Request.CreateResponse(employee);
         }
         // GET: api/Employees
         [HttpGet]
@@ -79,17 +74,12 @@ namespace EmployeeService.Controllers
 
         // POST: api/Employees
         [ResponseType(typeof(Employee))]
-        public async Task<IHttpActionResult> PostEmployee(Employee employee)
+        public async Task<HttpResponseMessage> PostEmployee([FromBody] Employee employee)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             db.Employees.Add(employee);
             await db.SaveChangesAsync();
     
-            return CreatedAtRoute("DefaultApi", new { id = employee.ID }, employee);
+            return Request.CreateResponse(HttpStatusCode.Created,employee);
         }
 
         // DELETE: api/Employees/5
